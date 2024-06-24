@@ -1,14 +1,25 @@
 const express = require('express');
 const axios = require('axios');
 const dotenv = require('dotenv');
-const path = require('path'); // Add this line to require the path module
+const path = require('path');
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 const fetchSenateTrades = async () => {
-  const apiUrl = `https://financialmodelingprep.com/api/v4/senate-trading-rss-feed?page=0&apikey=${process.env.API_KEY}`; // Corrected env.API_KEY to process.env.API_KEY
+  const apiUrl = `https://financialmodelingprep.com/api/v4/senate-trading-rss-feed?page=0&apikey=${process.env.API_KEY}`;
+  try {
+    const response = await axios.get(apiUrl);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching API data:', error);
+    return [];
+  }
+};
+
+const fetchHouseTrades = async () => {
+  const apiUrl = `https://financialmodelingprep.com/api/v4/senate-disclosure-rss-feed?page=0&apikey=${process.env.API_KEY}`;
   try {
     const response = await axios.get(apiUrl);
     return response.data;
@@ -20,6 +31,11 @@ const fetchSenateTrades = async () => {
 
 app.get('/api/senate-trades', async (req, res) => {
   const trades = await fetchSenateTrades();
+  res.json(trades);
+});
+
+app.get('/api/house-trades', async (req, res) => {
+  const trades = await fetchHouseTrades();
   res.json(trades);
 });
 
